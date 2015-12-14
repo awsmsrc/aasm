@@ -84,9 +84,9 @@ module AASM
         #   Foo[1].aasm.current_state # => :closed
         #
         # NOTE: intended to be called from an event
-        def aasm_write_state state
+        def aasm_write_state(state)
           aasm_column = self.class.aasm.attribute_name
-          update_only({aasm_column => state.to_s}, aasm_column)
+          update_only({ aasm_column => state.to_s }, aasm_column)
         end
 
         # Writes <tt>state</tt> to the state column, but does not persist it to the database
@@ -101,7 +101,7 @@ module AASM
         #   Foo[1].aasm.current_state # => :closed
         #
         # NOTE: intended to be called from an event
-        def aasm_write_state_without_persistence state
+        def aasm_write_state_without_persistence(state)
           send("#{self.class.aasm.attribute_name}=", state.to_s)
         end
       end

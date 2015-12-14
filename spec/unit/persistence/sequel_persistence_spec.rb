@@ -19,69 +19,69 @@ describe 'sequel' do
         set_dataset(:models)
         attr_accessor :default
         include AASM
-        aasm :column => :status
+        aasm column: :status
         aasm do
-          state :alpha, :initial => true
+          state :alpha, initial: true
           state :beta
           state :gamma
           event :release do
-            transitions :from => [:alpha, :beta, :gamma], :to => :beta
+            transitions from: [:alpha, :beta, :gamma], to: :beta
           end
         end
       end
     end
 
-    describe "instance methods" do
-      let(:model) {@model.new}
+    describe 'instance methods' do
+      let(:model) { @model.new }
 
-      it "should respond to aasm persistence methods" do
+      it 'should respond to aasm persistence methods' do
         expect(model).to respond_to(:aasm_read_state)
         expect(model).to respond_to(:aasm_write_state)
         expect(model).to respond_to(:aasm_write_state_without_persistence)
       end
 
-      it "should return the initial state when new and the aasm field is nil" do
+      it 'should return the initial state when new and the aasm field is nil' do
         expect(model.aasm.current_state).to eq(:alpha)
       end
 
-      it "should return the aasm column when new and the aasm field is not nil" do
-        model.status = "beta"
+      it 'should return the aasm column when new and the aasm field is not nil' do
+        model.status = 'beta'
         expect(model.aasm.current_state).to eq(:beta)
       end
 
-      it "should return the aasm column when not new and the aasm_column is not nil" do
+      it 'should return the aasm column when not new and the aasm_column is not nil' do
         allow(model).to receive(:new?).and_return(false)
-        model.status = "gamma"
+        model.status = 'gamma'
         expect(model.aasm.current_state).to eq(:gamma)
       end
 
-      it "should allow a nil state" do
+      it 'should allow a nil state' do
         allow(model).to receive(:new?).and_return(false)
         model.status = nil
         expect(model.aasm.current_state).to be_nil
       end
 
-      it "should call aasm_ensure_initial_state on validation before create" do
+      it 'should call aasm_ensure_initial_state on validation before create' do
         expect(model).to receive(:aasm_ensure_initial_state).and_return(true)
         model.valid?
       end
 
-      it "should call aasm_ensure_initial_state before create, even if skipping validations" do
+      it 'should call aasm_ensure_initial_state before create, even if skipping validations' do
         expect(model).to receive(:aasm_ensure_initial_state).and_return(true)
-        model.save(:validate => false)
+        model.save(validate: false)
       end
     end
 
     describe 'subclasses' do
-      it "should have the same states as its parent class" do
+      it 'should have the same states as its parent class' do
         expect(Class.new(@model).aasm.states).to eq(@model.aasm.states)
       end
 
-      it "should have the same events as its parent class" do
+      it 'should have the same events as its parent class' do
         expect(Class.new(@model).aasm.events).to eq(@model.aasm.events)
       end
 
-      it "should have the same column as its parent even for the new dsl" do
+      it 'should have the same column as its parent even for the new dsl' do
         expect(@model.aasm.attribute_name).to eq(:status)
         expect(Class.new(@model).aasm.attribute_name).to eq(:status)
       end
@@ -90,15 +90,15 @@ describe 'sequel' do
     describe 'initial states' do
       it 'should support conditions' do
         @model.aasm do
-          initial_state lambda{ |m| m.default }
+          initial_state ->(m) { m.default }
         end
 
-        expect(@model.new(:default => :beta).aasm.current_state).to eq(:beta)
-        expect(@model.new(:default => :gamma).aasm.current_state).to eq(:gamma)
+        expect(@model.new(default: :beta).aasm.current_state).to eq(:beta)
+        expect(@model.new(default: :gamma).aasm.current_state).to eq(:gamma)
       end
     end
 
   rescue LoadError
-    puts "Not running Sequel specs because sequel gem is not installed!!!"
+    puts 'Not running Sequel specs because sequel gem is not installed!!!'
   end
 end

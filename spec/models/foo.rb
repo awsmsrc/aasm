@@ -1,16 +1,16 @@
 class Foo
   include AASM
   aasm do
-    state :open, :initial => true, :before_exit => :before_exit
-    state :closed, :before_enter => :before_enter
+    state :open, initial: true, before_exit: :before_exit
+    state :closed, before_enter: :before_enter
     state :final
 
-    event :close, :success => :success_callback do
-      transitions :from => [:open], :to => [:closed]
+    event :close, success: :success_callback do
+      transitions from: [:open], to: [:closed]
     end
 
     event :null do
-      transitions :from => [:open], :to => [:closed, :final], :guard => :always_false
+      transitions from: [:open], to: [:closed, :final], guard: :always_false
     end
   end
 
@@ -23,6 +23,7 @@ class Foo
 
   def before_enter
   end
+
   def before_exit
   end
 end

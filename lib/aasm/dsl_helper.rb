@@ -1,5 +1,4 @@
 module DslHelper
-
   class Proxy
     attr_accessor :options
 
@@ -26,5 +25,4 @@ module DslHelper
     proxy.instance_eval(&block)
     proxy.options
   end
-
 end

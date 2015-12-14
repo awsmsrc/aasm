@@ -1,16 +1,15 @@
 module AASM
   module Persistence
     class << self
-
       def load_persistence(base)
         # Use a fancier auto-loading thingy, perhaps.  When there are more persistence engines.
-        hierarchy = base.ancestors.map {|klass| klass.to_s}
+        hierarchy = base.ancestors.map(&:to_s)
 
-        if hierarchy.include?("ActiveRecord::Base")
+        if hierarchy.include?('ActiveRecord::Base')
           include_persistence base, :active_record
-        elsif hierarchy.include?("Mongoid::Document")
+        elsif hierarchy.include?('Mongoid::Document')
           include_persistence base, :mongoid
-        elsif hierarchy.include?("Sequel::Model")
+        elsif hierarchy.include?('Sequel::Model')
           include_persistence base, :sequel
         else
           include_persistence base, :plain
@@ -25,13 +24,12 @@ module AASM
       end
 
       def capitalize(string_or_symbol)
-        string_or_symbol.to_s.split('_').map {|segment| segment[0].upcase + segment[1..-1]}.join('')
+        string_or_symbol.to_s.split('_').map { |segment| segment[0].upcase + segment[1..-1] }.join('')
       end
 
       def constantize(string)
         instance_eval(string)
       end
-
     end # class << self
   end
 end # AASM

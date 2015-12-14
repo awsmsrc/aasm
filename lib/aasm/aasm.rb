@@ -1,5 +1,4 @@
 module AASM
-
   # provide a state machine for the including class
   # make sure to load class methods as well
   # initialize persistence for the state machine
@@ -15,7 +14,6 @@ module AASM
   end
 
   module ClassMethods
-
     # make sure inheritance (aka subclassing) works with AASM
     def inherited(base)
       AASM::StateMachine[base] = AASM::StateMachine[self].clone
@@ -23,7 +21,7 @@ module AASM
     end
 
     # this is the entry point for all state and event definitions
-    def aasm(options={}, &block)
+    def aasm(options = {}, &block)
       @aasm ||= AASM::Base.new(self, options)
       @aasm.instance_eval(&block) if block # new DSL
       @aasm
@@ -40,7 +38,7 @@ module AASM
     @aasm ||= AASM::InstanceBase.new(self)
   end
 
-private
+  private
 
   # Takes args and a from state and removes the first
   # element from args if it is a valid to_state for
@@ -53,7 +51,7 @@ private
     if event.transitions_from_state(from_state).map(&:to).flatten.include?(args.first)
       return args[1..-1]
     end
-    return args
+    args
   end
 
   def aasm_fire_event(event_name, options, *args, &block)
@@ -72,7 +70,7 @@ private
         old_state.fire_callbacks(:before_exit, self)
         old_state.fire_callbacks(:exit, self) # TODO: remove for AASM 4?
 
-        if new_state_name = event.fire(self, {:may_fire => may_fire_to}, *args)
+        if new_state_name = event.fire(self, { may_fire: may_fire_to }, *args)
           aasm_fired(event, old_state, new_state_name, options, *args, &block)
         else
           aasm_failed(event_name, old_state)
@@ -115,9 +113,9 @@ private
         *process_args(event, old_state.name, *args)
       )
 
-      self.aasm_event_fired(event.name, old_state.name, aasm.current_state) if self.respond_to?(:aasm_event_fired)
+      aasm_event_fired(event.name, old_state.name, aasm.current_state) if self.respond_to?(:aasm_event_fired)
     else
-      self.aasm_event_failed(event.name, old_state.name) if self.respond_to?(:aasm_event_failed)
+      aasm_event_failed(event.name, old_state.name) if self.respond_to?(:aasm_event_failed)
     end
 
     persist_successful
@@ -125,14 +123,13 @@ private
 
   def aasm_failed(event_name, old_state)
     if self.respond_to?(:aasm_event_failed)
-      self.aasm_event_failed(event_name, old_state.name)
+      aasm_event_failed(event_name, old_state.name)
     end
 
     if AASM::StateMachine[self.class].config.whiny_transitions
-      raise AASM::InvalidTransition, "Event '#{event_name}' cannot transition from '#{aasm.current_state}'"
+      fail AASM::InvalidTransition, "Event '#{event_name}' cannot transition from '#{aasm.current_state}'"
     else
       false
     end
   end
-
 end

@@ -14,40 +14,40 @@ describe 'inspection for common cases' do
     expect(Foo.aasm.events).to include(:null)
   end
 
-  context "instance level inspection" do
+  context 'instance level inspection' do
     let(:foo) { Foo.new }
     let(:two) { FooTwo.new }
 
-    it "delivers all states" do
+    it 'delivers all states' do
       states = foo.aasm.states
       expect(states).to include(:open)
       expect(states).to include(:closed)
       expect(states).to include(:final)
 
-      states = foo.aasm.states(:permitted => true)
+      states = foo.aasm.states(permitted: true)
       expect(states).to include(:closed)
       expect(states).not_to include(:open)
       expect(states).not_to include(:final)
 
       foo.close
-      expect(foo.aasm.states(:permitted => true)).to be_empty
+      expect(foo.aasm.states(permitted: true)).to be_empty
     end
 
-    it "delivers all states for subclasses" do
+    it 'delivers all states for subclasses' do
       states = two.aasm.states
       expect(states).to include(:open)
       expect(states).to include(:closed)
       expect(states).to include(:foo)
 
-      states = two.aasm.states(:permitted => true)
+      states = two.aasm.states(permitted: true)
       expect(states).to include(:closed)
       expect(states).not_to include(:open)
 
       two.close
-      expect(two.aasm.states(:permitted => true)).to be_empty
+      expect(two.aasm.states(permitted: true)).to be_empty
     end
 
-    it "delivers all events" do
+    it 'delivers all events' do
       events = foo.aasm.events
       expect(events).to include(:close)
       expect(events).to include(:null)
@@ -61,8 +61,8 @@ describe 'inspection for common cases' do
   end
 end
 
-describe "special cases" do
-  it "should support valid a state name" do
+describe 'special cases' do
+  it 'should support valid a state name' do
     expect(Argument.aasm.states).to include(:invalid)
     expect(Argument.aasm.states).to include(:valid)
 
@@ -77,30 +77,30 @@ describe "special cases" do
 end
 
 describe 'aasm.states_for_select' do
-  it "should return a select friendly array of states" do
+  it 'should return a select friendly array of states' do
     expect(Foo.aasm).to respond_to(:states_for_select)
-    expect(Foo.aasm.states_for_select).to eq([['Open', 'open'], ['Closed', 'closed'], ['Final', 'final']])
+    expect(Foo.aasm.states_for_select).to eq([%w(Open open), %w(Closed closed), %w(Final final)])
   end
 end
 
 describe 'aasm.from_states_for_state' do
-  it "should return all from states for a state" do
+  it 'should return all from states for a state' do
     expect(AuthMachine.aasm).to respond_to(:from_states_for_state)
     froms = AuthMachine.aasm.from_states_for_state(:active)
-    [:pending, :passive, :suspended].each {|from| expect(froms).to include(from)}
+    [:pending, :passive, :suspended].each { |from| expect(froms).to include(from) }
   end
 
-  it "should return from states for a state for a particular transition only" do
-    froms = AuthMachine.aasm.from_states_for_state(:active, :transition => :unsuspend)
-    [:suspended].each {|from| expect(froms).to include(from)}
+  it 'should return from states for a state for a particular transition only' do
+    froms = AuthMachine.aasm.from_states_for_state(:active, transition: :unsuspend)
+    [:suspended].each { |from| expect(froms).to include(from) }
   end
 end
 
 describe 'permitted events' do
-  let(:foo) {Foo.new}
+  let(:foo) { Foo.new }
 
   it 'work' do
-    expect(foo.aasm.events(:permitted => true)).to include(:close)
-    expect(foo.aasm.events(:permitted => true)).not_to include(:null)
+    expect(foo.aasm.events(permitted: true)).to include(:close)
+    expect(foo.aasm.events(permitted: true)).not_to include(:null)
   end
 end

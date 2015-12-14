@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'on initialization' do
-  let(:auth) {AuthMachine.new}
+  let(:auth) { AuthMachine.new }
 
   it 'should be in the pending state' do
     expect(auth.aasm.current_state).to eq(:pending)
@@ -14,7 +14,7 @@ describe 'on initialization' do
 end
 
 describe 'when being unsuspended' do
-  let(:auth) {AuthMachine.new}
+  let(:auth) { AuthMachine.new }
 
   it 'should be able to be unsuspended' do
     auth.activate!
@@ -37,8 +37,8 @@ describe 'when being unsuspended' do
     auth.suspend!
     expect(auth.may_wait?(:waiting)).not_to be true
     expect(auth.may_wait?(:waiting, :rude)).not_to be true
-    expect {auth.wait!(nil, :rude)}.to raise_error(AASM::InvalidTransition)
-    expect {auth.wait!}.to raise_error(AASM::InvalidTransition)
+    expect { auth.wait!(nil, :rude) }.to raise_error(AASM::InvalidTransition)
+    expect { auth.wait! }.to raise_error(AASM::InvalidTransition)
   end
 
   it 'should not be able to be unpassified' do
@@ -47,7 +47,7 @@ describe 'when being unsuspended' do
     auth.unsuspend!
 
     expect(auth.may_unpassify?).not_to be true
-    expect {auth.unpassify!}.to raise_error(AASM::InvalidTransition)
+    expect { auth.unpassify! }.to raise_error(AASM::InvalidTransition)
   end
 
   it 'should be active if previously activated' do
@@ -73,12 +73,11 @@ describe 'when being unsuspended' do
     expect(auth.aasm.current_state).to eq(:passive)
   end
 
-  it "should be able to fire known events" do
+  it 'should be able to fire known events' do
     expect(auth.aasm.may_fire_event?(:activate)).to be true
   end
 
-  it "should not be able to fire unknown events" do
+  it 'should not be able to fire unknown events' do
     expect(auth.aasm.may_fire_event?(:unknown)).to be false
   end
-
 end

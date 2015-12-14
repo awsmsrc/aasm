@@ -2,7 +2,7 @@ module AASM::Core
   class State
     attr_reader :name, :options
 
-    def initialize(name, klass, options={})
+    def initialize(name, klass, options = {})
       @name = name
       @klass = klass
       update(options)
@@ -32,7 +32,7 @@ module AASM::Core
       action = @options[action]
       catch :halt_aasm_chain do
         action.is_a?(Array) ?
-                action.each {|a| _fire_callbacks(a, record)} :
+                action.each { |a| _fire_callbacks(a, record) } :
                 _fire_callbacks(action, record)
       end
     end
@@ -42,7 +42,7 @@ module AASM::Core
         if Module.const_defined?(:I18n)
           localized_name
         else
-          name.to_s.gsub(/_/, ' ').capitalize
+          name.to_s.tr('_', ' ').capitalize
         end
       end
     end
@@ -50,30 +50,27 @@ module AASM::Core
     def localized_name
       AASM::Localizer.new.human_state_name(@klass, self)
     end
-    alias human_name localized_name
+    alias_method :human_name, :localized_name
 
     def for_select
       [display_name, name.to_s]
     end
 
-  private
+    private
 
     def update(options = {})
-      if options.key?(:display) then
-        @display_name = options.delete(:display)
-      end
+      @display_name = options.delete(:display) if options.key?(:display)
       @options = options
       self
     end
 
     def _fire_callbacks(action, record)
       case action
-        when Symbol, String
-          record.send(action)
-        when Proc
-          action.call(record)
+      when Symbol, String
+        record.send(action)
+      when Proc
+        action.call(record)
       end
     end
-
   end
 end # AASM

@@ -6,7 +6,7 @@ class Bar
     state :ended
 
     event :foo do
-      transitions :to => :ended, :from => [:read]
+      transitions to: :ended, from: [:read]
     end
   end
 end

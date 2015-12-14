@@ -1,19 +1,18 @@
 require 'spec_helper'
-Dir[File.dirname(__FILE__) + "/../models/callbacks/*.rb"].sort.each { |f| require File.expand_path(f) }
+Dir[File.dirname(__FILE__) + '/../models/callbacks/*.rb'].sort.each { |f| require File.expand_path(f) }
 
 describe 'callbacks for the new DSL' do
-
-  it "be called in order" do
+  it 'be called in order' do
     show_debug_log = false
 
-    callback = Callbacks::Basic.new(:log => show_debug_log)
+    callback = Callbacks::Basic.new(log: show_debug_log)
     callback.aasm.current_state
 
     unless show_debug_log
       expect(callback).to receive(:before_event).once.ordered
       expect(callback).to receive(:event_guard).once.ordered.and_return(true)
       expect(callback).to receive(:transition_guard).once.ordered.and_return(true)
-      expect(callback).to receive(:before_exit_open).once.ordered                   # these should be before the state changes
+      expect(callback).to receive(:before_exit_open).once.ordered # these should be before the state changes
       expect(callback).to receive(:exit_open).once.ordered
       # expect(callback).to receive(:event_guard).once.ordered.and_return(true)
       # expect(callback).to receive(:transition_guard).once.ordered.and_return(true)
@@ -30,8 +29,8 @@ describe 'callbacks for the new DSL' do
     callback.close!
   end
 
-  it "does not run any state callback if the event guard fails" do
-    callback = Callbacks::Basic.new(:log => false)
+  it 'does not run any state callback if the event guard fails' do
+    callback = Callbacks::Basic.new(log: false)
     callback.aasm.current_state
 
     expect(callback).to receive(:before_event).once.ordered
@@ -52,10 +51,10 @@ describe 'callbacks for the new DSL' do
     }.to raise_error(AASM::InvalidTransition)
   end
 
-  it "it handles private callback methods as well" do
+  it 'it handles private callback methods as well' do
     show_debug_log = false
 
-    callback = Callbacks::PrivateMethod.new(:log => show_debug_log)
+    callback = Callbacks::PrivateMethod.new(log: show_debug_log)
     callback.aasm.current_state
 
     # puts "------- close!"
@@ -64,10 +63,10 @@ describe 'callbacks for the new DSL' do
     }.to_not raise_error
   end
 
-  context "if the transition guard fails" do
-    it "does not run any state callback if guard is defined inline" do
+  context 'if the transition guard fails' do
+    it 'does not run any state callback if guard is defined inline' do
       show_debug_log = false
-      callback = Callbacks::Basic.new(:log => show_debug_log, :fail_transition_guard => true)
+      callback = Callbacks::Basic.new(log: show_debug_log, fail_transition_guard: true)
       callback.aasm.current_state
 
       unless show_debug_log
@@ -90,9 +89,9 @@ describe 'callbacks for the new DSL' do
       }.to raise_error(AASM::InvalidTransition)
     end
 
-    it "does not run transition_guard twice for multiple permitted transitions" do
+    it 'does not run transition_guard twice for multiple permitted transitions' do
       show_debug_log = false
-      callback = Callbacks::MultipleTransitionsTransitionGuard.new(:log => show_debug_log, :fail_transition_guard => true)
+      callback = Callbacks::MultipleTransitionsTransitionGuard.new(log: show_debug_log, fail_transition_guard: true)
       callback.aasm.current_state
 
       unless show_debug_log
@@ -102,7 +101,7 @@ describe 'callbacks for the new DSL' do
         expect(callback).to receive(:event_guard).once.ordered.and_return(true)
         expect(callback).to receive(:before_exit_open).once.ordered
         expect(callback).to receive(:exit_open).once.ordered
-        expect(callback).to receive(:aasm_write_state).once.ordered.and_return(true)  # this is when the state changes
+        expect(callback).to receive(:aasm_write_state).once.ordered.and_return(true) # this is when the state changes
         expect(callback).to receive(:after_exit_open).once.ordered
         expect(callback).to receive(:after).once.ordered
 
@@ -116,8 +115,8 @@ describe 'callbacks for the new DSL' do
       expect(callback.aasm.current_state).to eql :failed
     end
 
-    it "does not run any state callback if guard is defined with block" do
-      callback = Callbacks::GuardWithinBlock.new #(:log => true, :fail_transition_guard => true)
+    it 'does not run any state callback if guard is defined with block' do
+      callback = Callbacks::GuardWithinBlock.new # (:log => true, :fail_transition_guard => true)
       callback.aasm.current_state
 
       expect(callback).to receive(:before).once.ordered
@@ -139,8 +138,8 @@ describe 'callbacks for the new DSL' do
     end
   end
 
-  it "should properly pass arguments" do
-    cb = Callbacks::WithArgs.new(:log => false)
+  it 'should properly pass arguments' do
+    cb = Callbacks::WithArgs.new(log: false)
     cb.aasm.current_state
 
     cb.reset_data
@@ -148,7 +147,7 @@ describe 'callbacks for the new DSL' do
     expect(cb.data).to eql 'before(:arg1,:arg2) before_exit_open transition_proc(:arg1,:arg2) before_enter_closed aasm_write_state after_exit_open after_enter_closed after(:arg1,:arg2)'
   end
 
-  it "should call the callbacks given the to-state as argument" do
+  it 'should call the callbacks given the to-state as argument' do
     cb = Callbacks::WithStateArg.new
     expect(cb).to receive(:before_method).with(:arg1).once.ordered
     expect(cb).to receive(:transition_method).never
@@ -164,7 +163,7 @@ describe 'callbacks for the new DSL' do
     cb.close!(:out_to_lunch, some_object)
   end
 
-  it "should call the proper methods just with arguments" do
+  it 'should call the proper methods just with arguments' do
     cb = Callbacks::WithStateArg.new
     expect(cb).to receive(:before_method).with(:arg1).once.ordered
     expect(cb).to receive(:transition_method).with(:arg1).once.ordered
@@ -183,7 +182,7 @@ describe 'callbacks for the new DSL' do
 end
 
 describe 'event callbacks' do
-  describe "with an error callback defined" do
+  describe 'with an error callback defined' do
     before do
       class Foo
         # this hack is needed to allow testing of parameters, since RSpec
@@ -191,8 +190,8 @@ describe 'event callbacks' do
         attr_accessor :data
 
         aasm do
-          event :safe_close, :success => :success_callback, :error => :error_callback do
-            transitions :to => :closed, :from => [:open]
+          event :safe_close, success: :success_callback, error: :error_callback do
+            transitions to: :closed, from: [:open]
           end
         end
       end
@@ -200,8 +199,8 @@ describe 'event callbacks' do
       @foo = Foo.new
     end
 
-    context "error_callback defined" do
-      it "should run error_callback if an exception is raised" do
+    context 'error_callback defined' do
+      it 'should run error_callback if an exception is raised' do
         def @foo.error_callback(e)
           @data = [e]
         end
@@ -212,8 +211,8 @@ describe 'event callbacks' do
         expect(@foo.data).to eql [e]
       end
 
-      it "should run error_callback without parameters if callback does not support any" do
-        def @foo.error_callback(e)
+      it 'should run error_callback without parameters if callback does not support any' do
+        def @foo.error_callback(_e)
           @data = []
         end
 
@@ -223,33 +222,33 @@ describe 'event callbacks' do
         expect(@foo.data).to eql []
       end
 
-      it "should run error_callback with parameters if callback supports them" do
-        def @foo.error_callback(e, arg1, arg2)
+      it 'should run error_callback with parameters if callback supports them' do
+        def @foo.error_callback(_e, arg1, arg2)
           @data = [arg1, arg2]
         end
 
         allow(@foo).to receive(:before_enter).and_raise(e = StandardError.new)
 
         @foo.safe_close!('arg1', 'arg2')
-        expect(@foo.data).to eql ['arg1', 'arg2']
+        expect(@foo.data).to eql %w(arg1 arg2)
       end
     end
 
-    it "should raise NoMethodError if exception is raised and error_callback is declared but not defined" do
+    it 'should raise NoMethodError if exception is raised and error_callback is declared but not defined' do
       allow(@foo).to receive(:before_enter).and_raise(StandardError)
-      expect{@foo.safe_close!}.to raise_error(NoMethodError)
+      expect { @foo.safe_close! }.to raise_error(NoMethodError)
     end
 
-    it "should propagate an error if no error callback is declared" do
-        allow(@foo).to receive(:before_enter).and_raise("Cannot enter safe")
-        expect{@foo.close!}.to raise_error(StandardError, "Cannot enter safe")
+    it 'should propagate an error if no error callback is declared' do
+      allow(@foo).to receive(:before_enter).and_raise('Cannot enter safe')
+      expect { @foo.close! }.to raise_error(StandardError, 'Cannot enter safe')
     end
   end
 
-  describe "with aasm_event_fired defined" do
+  describe 'with aasm_event_fired defined' do
     before do
       @foo = Foo.new
-      def @foo.aasm_event_fired(event, from, to); end
+      def @foo.aasm_event_fired(_event, _from, _to); end
     end
 
     it 'should call it for successful bang fire' do
@@ -269,20 +268,20 @@ describe 'event callbacks' do
     end
   end
 
-  describe "with aasm_event_failed defined" do
+  describe 'with aasm_event_failed defined' do
     before do
       @foo = Foo.new
-      def @foo.aasm_event_failed(event, from); end
+      def @foo.aasm_event_failed(_event, _from); end
     end
 
     it 'should call it when transition failed for bang fire' do
       expect(@foo).to receive(:aasm_event_failed).with(:null, :open)
-      expect {@foo.null!}.to raise_error(AASM::InvalidTransition)
+      expect { @foo.null! }.to raise_error(AASM::InvalidTransition)
     end
 
     it 'should call it when transition failed for non-bang fire' do
       expect(@foo).to receive(:aasm_event_failed).with(:null, :open)
-      expect {@foo.null}.to raise_error(AASM::InvalidTransition)
+      expect { @foo.null }.to raise_error(AASM::InvalidTransition)
     end
 
     it 'should not call it if persist fails for bang fire' do
@@ -291,5 +290,4 @@ describe 'event callbacks' do
       @foo.close!
     end
   end
-
 end

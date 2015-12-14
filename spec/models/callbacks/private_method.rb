@@ -2,7 +2,7 @@ module Callbacks
   class PrivateMethod
     include AASM
 
-    def initialize(options={})
+    def initialize(options = {})
       @fail_event_guard = options[:fail_event_guard]
       @fail_transition_guard = options[:fail_transition_guard]
       @log = options[:log]
@@ -18,15 +18,15 @@ module Callbacks
     end
 
     aasm do
-      state :open, :initial => true
+      state :open, initial: true
       state :closed
 
-      event :close, :after => :after_event do
-        transitions :to => :closed, :from => [:open]
+      event :close, after: :after_event do
+        transitions to: :closed, from: [:open]
       end
 
-      event :open, :after => :after_event do
-        transitions :to => :open, :from => :closed
+      event :open, after: :after_event do
+        transitions to: :open, from: :closed
       end
     end
 
@@ -35,10 +35,15 @@ module Callbacks
       puts text if @log
     end
 
-    def aasm_write_state(*args); log('aasm_write_state'); true; end
+    def aasm_write_state(*_args)
+      log('aasm_write_state')
+      true
+    end
 
     private
 
-    def after_event; log('after_event'); end
+    def after_event
+      log('after_event')
+    end
   end
 end

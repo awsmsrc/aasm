@@ -12,7 +12,7 @@ class LocalizerTestModel < ActiveRecord::Base
   attr_accessor :aasm_state
 
   aasm do
-    state :opened, :initial => true
+    state :opened, initial: true
     state :closed
     event :close
     event :open
@@ -31,19 +31,19 @@ describe 'localized state names' do
   end
 
   it 'should localize' do
-    state = LocalizerTestModel.aasm.states.detect {|s| s == :opened}
+    state = LocalizerTestModel.aasm.states.detect { |s| s == :opened }
     expect(state.localized_name).to eq("It's open now!")
     expect(state.human_name).to eq("It's open now!")
   end
 
   it 'should use fallback' do
-    state = LocalizerTestModel.aasm.states.detect {|s| s == :closed}
+    state = LocalizerTestModel.aasm.states.detect { |s| s == :closed }
     expect(state.localized_name).to eq('Closed')
     expect(state.human_name).to eq('Closed')
   end
 end
 
-describe AASM::Localizer, "new style" do
+describe AASM::Localizer, 'new style' do
   before(:all) do
     I18n.load_path << 'spec/en.yml'
     I18n.default_locale = :en
@@ -55,7 +55,7 @@ describe AASM::Localizer, "new style" do
   end
 
   let (:foo_opened) { LocalizerTestModel.new }
-  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed  } }
+  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed } }
 
   context 'aasm.human_state' do
     it 'should return translated state value' do
@@ -63,7 +63,7 @@ describe AASM::Localizer, "new style" do
     end
 
     it 'should return humanized value if not localized' do
-      expect(foo_closed.aasm.human_state).to eq("Closed")
+      expect(foo_closed.aasm.human_state).to eq('Closed')
     end
   end
 
@@ -73,12 +73,12 @@ describe AASM::Localizer, "new style" do
     end
 
     it 'should return humanized event name' do
-      expect(LocalizerTestModel.aasm.human_event_name(:open)).to eq("Open")
+      expect(LocalizerTestModel.aasm.human_event_name(:open)).to eq('Open')
     end
   end
 end
 
-describe AASM::Localizer, "deprecated style" do
+describe AASM::Localizer, 'deprecated style' do
   before(:all) do
     I18n.load_path << 'spec/en_deprecated_style.yml'
     I18n.default_locale = :en
@@ -90,7 +90,7 @@ describe AASM::Localizer, "deprecated style" do
   end
 
   let (:foo_opened) { LocalizerTestModel.new }
-  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed  } }
+  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed } }
 
   context 'aasm.human_state' do
     it 'should return translated state value' do
@@ -98,7 +98,7 @@ describe AASM::Localizer, "deprecated style" do
     end
 
     it 'should return humanized value if not localized' do
-      expect(foo_closed.aasm.human_state).to eq("Closed")
+      expect(foo_closed.aasm.human_state).to eq('Closed')
     end
   end
 
@@ -108,7 +108,7 @@ describe AASM::Localizer, "deprecated style" do
     end
 
     it 'should return humanized event name' do
-      expect(LocalizerTestModel.aasm.human_event_name(:open)).to eq("Open")
+      expect(LocalizerTestModel.aasm.human_event_name(:open)).to eq('Open')
     end
   end
 end

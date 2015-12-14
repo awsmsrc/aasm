@@ -3,21 +3,21 @@ require 'spec_helper'
 class Payment
   include AASM
   aasm do
-    state :initialised, :initial => true
+    state :initialised, initial: true
     state :filled_out
     state :authorised
 
     event :fill_out do
-      transitions :from => :initialised, :to => :filled_out
+      transitions from: :initialised, to: :filled_out
     end
     event :authorise do
-      transitions :from => :filled_out, :to => :authorised
+      transitions from: :filled_out, to: :authorised
     end
   end
 end
 
 describe 'state machine' do
-  let(:payment) {Payment.new}
+  let(:payment) { Payment.new }
 
   it 'starts with an initial state' do
     expect(payment.aasm.current_state).to eq(:initialised)
@@ -40,14 +40,14 @@ describe 'state machine' do
   end
 
   it 'denies transitions to other states' do
-    expect {payment.authorise}.to raise_error(AASM::InvalidTransition)
-    expect {payment.authorise!}.to raise_error(AASM::InvalidTransition)
+    expect { payment.authorise }.to raise_error(AASM::InvalidTransition)
+    expect { payment.authorise! }.to raise_error(AASM::InvalidTransition)
     payment.fill_out
-    expect {payment.fill_out}.to raise_error(AASM::InvalidTransition)
-    expect {payment.fill_out!}.to raise_error(AASM::InvalidTransition)
+    expect { payment.fill_out }.to raise_error(AASM::InvalidTransition)
+    expect { payment.fill_out! }.to raise_error(AASM::InvalidTransition)
     payment.authorise
-    expect {payment.fill_out}.to raise_error(AASM::InvalidTransition)
-    expect {payment.fill_out!}.to raise_error(AASM::InvalidTransition)
+    expect { payment.fill_out }.to raise_error(AASM::InvalidTransition)
+    expect { payment.fill_out! }.to raise_error(AASM::InvalidTransition)
   end
 
   it 'defines constants for each state name' do

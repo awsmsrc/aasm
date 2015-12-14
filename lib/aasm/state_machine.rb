@@ -1,6 +1,5 @@
 module AASM
   class StateMachine
-
     # the following two methods provide the storage of all state machines
     def self.[](klass)
       (@machines ||= {})[klass.to_s]
@@ -40,6 +39,5 @@ module AASM
     def set_initial_state(name, options)
       @initial_state = name if options[:initial] || !initial_state
     end
-
   end # StateMachine
 end # AASM

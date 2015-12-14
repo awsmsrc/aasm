@@ -11,7 +11,7 @@ module AASM::Core
       @from = opts[:from]
       @to = opts[:to]
       @guards = Array(opts[:guards]) + Array(opts[:guard]) + Array(opts[:if])
-      @unless = Array(opts[:unless]) #TODO: This could use a better name
+      @unless = Array(opts[:unless]) # TODO: This could use a better name
 
       if opts[:on_transition]
         warn '[DEPRECATION] :on_transition is deprecated, use :after instead'
@@ -24,8 +24,8 @@ module AASM::Core
     end
 
     def allowed?(obj, *args)
-      invoke_callbacks_compatible_with_guard(@guards, obj, args, :guard => true) &&
-      invoke_callbacks_compatible_with_guard(@unless, obj, args, :unless => true)
+      invoke_callbacks_compatible_with_guard(@guards, obj, args, guard: true) &&
+        invoke_callbacks_compatible_with_guard(@unless, obj, args, unless: true)
     end
 
     def execute(obj, *args)
@@ -42,7 +42,7 @@ module AASM::Core
 
     private
 
-    def invoke_callbacks_compatible_with_guard(code, record, args, options={})
+    def invoke_callbacks_compatible_with_guard(code, record, args, options = {})
       if record.respond_to?(:aasm)
         record.aasm.from_state = @from if record.aasm.respond_to?(:from_state=)
         record.aasm.to_state = @to if record.aasm.respond_to?(:to_state=)
@@ -57,18 +57,17 @@ module AASM::Core
       when Array
         if options[:guard]
           # invoke guard callbacks
-          code.all? {|a| invoke_callbacks_compatible_with_guard(a, record, args)}
+          code.all? { |a| invoke_callbacks_compatible_with_guard(a, record, args) }
         elsif options[:unless]
           # invoke unless callbacks
-          code.all? {|a| !invoke_callbacks_compatible_with_guard(a, record, args)}
+          code.all? { |a| !invoke_callbacks_compatible_with_guard(a, record, args) }
         else
           # invoke after callbacks
-          code.map {|a| invoke_callbacks_compatible_with_guard(a, record, args)}
+          code.map { |a| invoke_callbacks_compatible_with_guard(a, record, args) }
         end
       else
         true
       end
     end
-
   end
 end # AASM

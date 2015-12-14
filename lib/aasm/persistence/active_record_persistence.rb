@@ -42,7 +42,6 @@ module AASM
       end
 
       module ClassMethods
-
         def find_in_state(number, state, *args)
           with_state_scope state do
             find(number, *args)
@@ -62,15 +61,15 @@ module AASM
         end
 
         protected
+
         def with_state_scope(state)
-          with_scope :find => {:conditions => ["#{table_name}.#{aasm_column} = ?", state.to_s]} do
+          with_scope find: { conditions: ["#{table_name}.#{aasm_column} = ?", state.to_s] } do
             yield if block_given?
           end
         end
       end
 
       module InstanceMethods
-
         # Writes <tt>state</tt> to the state column and persists it to the database
         #
         #   foo = Foo.find(1)
@@ -85,10 +84,10 @@ module AASM
           aasm_write_attribute state
 
           success = if aasm_skipping_validations
-            value = aasm_raw_attribute_value state
-            self.class.where(self.class.primary_key => self.id).update_all(self.class.aasm.attribute_name => value) == 1
-          else
-            self.save
+                      value = aasm_raw_attribute_value state
+                      self.class.where(self.class.primary_key => id).update_all(self.class.aasm.attribute_name => value) == 1
+                    else
+                      save
           end
           unless success
             write_attribute(self.class.aasm.attribute_name, old_value)
@@ -114,13 +113,14 @@ module AASM
           aasm_write_attribute state
         end
 
-      private
+        private
+
         def aasm_enum
           case AASM::StateMachine[self.class].config.enum
-            when false then nil
-            when true then aasm_guess_enum_method
-            when nil then aasm_guess_enum_method if aasm_column_looks_like_enum
-            else AASM::StateMachine[self.class].config.enum
+          when false then nil
+          when true then aasm_guess_enum_method
+          when nil then aasm_guess_enum_method if aasm_column_looks_like_enum
+          else AASM::StateMachine[self.class].config.enum
           end
         end
 
@@ -172,7 +172,7 @@ module AASM
         end
 
         def aasm_fire_event(name, options, *args, &block)
-          success = options[:persist] ? self.class.transaction(:requires_new => requires_new?) { super } : super
+          success = options[:persist] ? self.class.transaction(requires_new: requires_new?) { super } : super
 
           if success && options[:persist]
             event = self.class.aasm.state_machine.events[name]
@@ -189,12 +189,11 @@ module AASM
         def aasm_validate_states
           unless AASM::StateMachine[self.class].config.skip_validation_on_save
             if aasm.current_state && !aasm.states.include?(aasm.current_state)
-              self.errors.add(AASM::StateMachine[self.class].config.column , "is invalid")
+              errors.add(AASM::StateMachine[self.class].config.column, 'is invalid')
             end
           end
         end
       end # InstanceMethods
-
     end
   end # Persistence
 end # AASM

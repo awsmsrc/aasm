@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'subclassing' do
-  let(:son) {Son.new}
+  let(:son) { Son.new }
 
   it 'should have the parent states' do
     Foo.aasm.states.each do |state|
@@ -14,7 +14,7 @@ describe 'subclassing' do
     expect(Foo.aasm.states).not_to include(:foo)
   end
 
-  it "should have the same events as its parent" do
+  it 'should have the same events as its parent' do
     expect(Baz.aasm.events).to eq(Bar.aasm.events)
   end
 
@@ -26,6 +26,4 @@ describe 'subclassing' do
     son.update_state
     expect(son.aasm.current_state).to eq(:pending_details_confirmation)
   end
-
 end
-

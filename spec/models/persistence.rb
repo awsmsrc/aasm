@@ -13,7 +13,7 @@ class Gate < ActiveRecord::Base
     state :closed
 
     event :view do
-      transitions :to => :read, :from => [:needs_attention]
+      transitions to: :read, from: [:needs_attention]
     end
   end
 end
@@ -31,7 +31,7 @@ class FalseState < ActiveRecord::Base
     state :closed
 
     event :view do
-      transitions :to => :read, :from => [:needs_attention]
+      transitions to: :read, from: [:needs_attention]
     end
   end
 end
@@ -46,12 +46,12 @@ class WithEnum < ActiveRecord::Base
     {}
   end
 
-  aasm :enum => :test do
+  aasm enum: :test do
     state :opened
     state :closed
 
     event :view do
-      transitions :to => :read, :from => [:needs_attention]
+      transitions to: :read, from: [:needs_attention]
     end
   end
 end
@@ -66,12 +66,12 @@ class WithTrueEnum < ActiveRecord::Base
     'value'
   end
 
-  aasm :enum => true do
+  aasm enum: true do
     state :opened
     state :closed
 
     event :view do
-      transitions :to => :read, :from => [:needs_attention]
+      transitions to: :read, from: [:needs_attention]
     end
   end
 end
@@ -82,12 +82,12 @@ class WithFalseEnum < ActiveRecord::Base
   # Fake this column for testing purposes
   attr_accessor :aasm_state
 
-  aasm :enum => false do
+  aasm enum: false do
     state :opened
     state :closed
 
     event :view do
-      transitions :to => :read, :from => [:needs_attention]
+      transitions to: :read, from: [:needs_attention]
     end
   end
 end
@@ -96,27 +96,27 @@ class Reader < ActiveRecord::Base
   include AASM
 
   def aasm_read_state
-    "fi"
+    'fi'
   end
 end
 
 class Writer < ActiveRecord::Base
-  def aasm_write_state(state)
-    "fo"
+  def aasm_write_state(_state)
+    'fo'
   end
   include AASM
 end
 
 class Transient < ActiveRecord::Base
-  def aasm_write_state_without_persistence(state)
-    "fum"
+  def aasm_write_state_without_persistence(_state)
+    'fum'
   end
   include AASM
 end
 
 class SimpleNewDsl < ActiveRecord::Base
   include AASM
-  aasm :column => :status
+  aasm column: :status
   aasm do
     state :unknown_scope
     state :new
@@ -125,22 +125,22 @@ end
 
 class NoScope < ActiveRecord::Base
   include AASM
-  aasm :create_scopes => false do
-    state :pending, :initial => true
+  aasm create_scopes: false do
+    state :pending, initial: true
     state :running
     event :run do
-      transitions :from => :pending, :to => :running
+      transitions from: :pending, to: :running
     end
   end
 end
 
 class NoDirectAssignment < ActiveRecord::Base
   include AASM
-  aasm :no_direct_assignment => true do
-    state :pending, :initial => true
+  aasm no_direct_assignment: true do
+    state :pending, initial: true
     state :running
     event :run do
-      transitions :from => :pending, :to => :running
+      transitions from: :pending, to: :running
     end
   end
 end
@@ -152,13 +152,13 @@ class Thief < ActiveRecord::Base
   if ActiveRecord::VERSION::MAJOR >= 3
     self.table_name = 'thieves'
   else
-    set_table_name "thieves"
+    set_table_name 'thieves'
   end
   include AASM
   aasm do
     state :rich
     state :jailed
-    initial_state Proc.new {|thief| thief.skilled ? :rich : :jailed }
+    initial_state proc { |thief| thief.skilled ? :rich : :jailed }
   end
   attr_accessor :skilled, :aasm_state
 end

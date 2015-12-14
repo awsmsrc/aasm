@@ -8,14 +8,12 @@ module Models
       state :suspended
 
       event :start do
-        transitions :from => :sleeping, :to => :running
+        transitions from: :sleeping, to: :running
       end
 
       event :stop do
-        transitions :from => :running, :to => :suspended
+        transitions from: :running, to: :suspended
       end
     end
-
   end
 end
-

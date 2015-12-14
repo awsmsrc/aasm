@@ -5,16 +5,21 @@ class Banker
   aasm do
     state :retired
     state :selling_bad_mortgages
-    initial_state Proc.new { |banker| banker.rich? ? :retired : :selling_bad_mortgages }
+    initial_state proc { |banker| banker.rich? ? :retired : :selling_bad_mortgages }
   end
   RICH = 1_000_000
   attr_accessor :balance
-  def initialize(balance = 0); self.balance = balance; end
-  def rich?; self.balance >= RICH; end
+  def initialize(balance = 0)
+    self.balance = balance
+  end
+
+  def rich?
+    balance >= RICH
+  end
 end
 
 describe 'initial states' do
-  let(:bar) {Bar.new}
+  let(:bar) { Bar.new }
 
   it 'should use the first state defined if no initial state is given' do
     expect(bar.aasm.current_state).to eq(:read)

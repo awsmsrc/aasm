@@ -14,14 +14,14 @@ Coveralls.wear!
 SEQUEL_DB = defined?(JRUBY_VERSION) ? 'jdbc:sqlite::memory:' : 'sqlite:/'
 
 def load_schema
-  config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
-  ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
+  config = YAML.load(IO.read(File.dirname(__FILE__) + '/database.yml'))
+  ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + '/debug.log')
   ActiveRecord::Base.establish_connection(config['sqlite3'])
-  require File.dirname(__FILE__) + "/database.rb"
+  require File.dirname(__FILE__) + '/database.rb'
 end
 
 # custom spec helpers
-Dir[File.dirname(__FILE__) + "/spec_helpers/**/*.rb"].sort.each { |f| require File.expand_path(f) }
+Dir[File.dirname(__FILE__) + '/spec_helpers/**/*.rb'].sort.each { |f| require File.expand_path(f) }
 
 # example model classes
-Dir[File.dirname(__FILE__) + "/models/*.rb"].sort.each { |f| require File.expand_path(f) }
+Dir[File.dirname(__FILE__) + '/models/*.rb'].sort.each { |f| require File.expand_path(f) }

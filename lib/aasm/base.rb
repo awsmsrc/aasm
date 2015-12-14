@@ -1,9 +1,8 @@
 module AASM
   class Base
-
     attr_reader :state_machine
 
-    def initialize(klass, options={}, &block)
+    def initialize(klass, options = {}, &_block)
       @klass = klass
       @state_machine = AASM::StateMachine[@klass]
       @state_machine.config.column ||= (options[:column] || :aasm_state).to_sym # aasm4
@@ -28,14 +27,14 @@ module AASM
       configure :enum, nil
 
       if @state_machine.config.no_direct_assignment
-        @klass.send(:define_method, "#{@state_machine.config.column}=") do |state_name|
-          raise AASM::NoDirectAssignmentError.new('direct assignment of AASM column has been disabled (see AASM configuration for this class)')
+        @klass.send(:define_method, "#{@state_machine.config.column}=") do |_state_name|
+          fail AASM::NoDirectAssignmentError.new('direct assignment of AASM column has been disabled (see AASM configuration for this class)')
         end
       end
     end
 
     # This method is both a getter and a setter
-    def attribute_name(column_name=nil)
+    def attribute_name(column_name = nil)
       if column_name
         @state_machine.config.column = column_name.to_sym
       else
@@ -44,7 +43,7 @@ module AASM
       @state_machine.config.column
     end
 
-    def initial_state(new_initial_state=nil)
+    def initial_state(new_initial_state = nil)
       if new_initial_state
         @state_machine.initial_state = new_initial_state
       else
@@ -53,7 +52,7 @@ module AASM
     end
 
     # define a state
-    def state(name, options={})
+    def state(name, options = {})
       @state_machine.add_state(name, @klass, options)
 
       @klass.send(:define_method, "#{name}?") do
@@ -66,7 +65,7 @@ module AASM
     end
 
     # define an event
-    def event(name, options={}, &block)
+    def event(name, options = {}, &block)
       @state_machine.events[name] = AASM::Core::Event.new(name, options, &block)
 
       # an addition over standard aasm so that, before firing an event, you can ask
@@ -78,12 +77,12 @@ module AASM
 
       @klass.send(:define_method, "#{name}!") do |*args, &block|
         aasm.current_event = "#{name}!".to_sym
-        aasm_fire_event(name, {:persist => true}, *args, &block)
+        aasm_fire_event(name, { persist: true }, *args, &block)
       end
 
       @klass.send(:define_method, "#{name}") do |*args, &block|
         aasm.current_event = name.to_sym
-        aasm_fire_event(name, {:persist => false}, *args, &block)
+        aasm_fire_event(name, { persist: false }, *args, &block)
       end
     end
 
@@ -101,14 +100,14 @@ module AASM
     end
 
     def states_for_select
-      states.map { |state| state.for_select }
+      states.map(&:for_select)
     end
 
-    def from_states_for_state(state, options={})
+    def from_states_for_state(state, options = {})
       if options[:transition]
         @state_machine.events[options[:transition]].transitions_to_state(state).flatten.map(&:from).flatten
       else
-        events.map {|e| e.transitions_to_state(state)}.flatten.map(&:from).flatten
+        events.map { |e| e.transitions_to_state(state) }.flatten.map(&:from).flatten
       end
     end
 
@@ -121,6 +120,5 @@ module AASM
         @state_machine.config.send("#{key}=", default_value)
       end
     end
-
   end
 end

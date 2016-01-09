@@ -1,7 +1,6 @@
 module AASM
   module Persistence
     module PlainPersistence
-
       def aasm_read_state
         # all the following lines behave like @current_state ||= aasm.enter_initial_state
         current = aasm.instance_variable_get("@current_state")
@@ -10,15 +9,14 @@ module AASM
       end
 
       # may be overwritten by persistence mixins
-      def aasm_write_state(new_state)
+      def aasm_write_state(_new_state)
         true
       end
 
       # may be overwritten by persistence mixins
-      def aasm_write_state_without_persistence(new_state)
+      def aasm_write_state_without_persistence(_new_state)
         true
       end
-
     end
   end
 end

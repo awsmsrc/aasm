@@ -1,6 +1,5 @@
 module AASM
   class InstanceBase
-
     attr_accessor :from_state, :to_state, :current_event
 
     def initialize(instance)
@@ -32,21 +31,21 @@ module AASM
       AASM::Localizer.new.human_state_name(@instance.class, current_state)
     end
 
-    def states(options={})
+    def states(options = {})
       if options[:permitted]
         # ugliness level 1000
-        permitted_event_names = events(:permitted => true).map(&:name)
-        transitions = @instance.class.aasm.state_machine.events.values_at(*permitted_event_names).compact.map {|e| e.transitions_from_state(current_state) }
-        tos = transitions.map {|t| t[0] ? t[0].to : nil}.flatten.compact.map(&:to_sym).uniq
-        @instance.class.aasm.states.select {|s| tos.include?(s.name.to_sym)}
+        permitted_event_names = events(permitted: true).map(&:name)
+        transitions = @instance.class.aasm.state_machine.events.values_at(*permitted_event_names).compact.map { |e| e.transitions_from_state(current_state) }
+        tos = transitions.map { |t| t[0] ? t[0].to : nil }.flatten.compact.map(&:to_sym).uniq
+        @instance.class.aasm.states.select { |s| tos.include?(s.name.to_sym) }
       else
         @instance.class.aasm.states
       end
     end
 
-    def events(options={})
+    def events(options = {})
       state = options[:state] || current_state
-      events = @instance.class.aasm.events.select {|e| e.transitions_from_state?(state) }
+      events = @instance.class.aasm.events.select { |e| e.transitions_from_state?(state) }
 
       if options[:permitted]
         # filters the results of events_for_current_state so that only those that
@@ -58,19 +57,19 @@ module AASM
     end
 
     def state_object_for_name(name)
-      obj = @instance.class.aasm.states.find {|s| s == name}
-      raise AASM::UndefinedState, "State :#{name} doesn't exist" if obj.nil?
+      obj = @instance.class.aasm.states.find { |s| s == name }
+      fail AASM::UndefinedState, "State :#{name} doesn't exist" if obj.nil?
       obj
     end
 
     def determine_state_name(state)
       case state
-        when Symbol, String
-          state
-        when Proc
-          state.call(@instance)
-        else
-          raise NotImplementedError, "Unrecognized state-type given.  Expected Symbol, String, or Proc."
+      when Symbol, String
+        state
+      when Proc
+        state.call(@instance)
+      else
+        fail NotImplementedError, "Unrecognized state-type given.  Expected Symbol, String, or Proc."
       end
     end
 
@@ -87,6 +86,5 @@ module AASM
       self.current_state = state if save_success
       save_success
     end
-
   end
 end

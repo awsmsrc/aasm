@@ -56,5 +56,4 @@ describe "event guards" do
     expect { guardian.use_event_and_transition_guards_where_third_fails! }.to raise_error(AASM::InvalidTransition)
     expect(guardian).to be_alpha
   end
-
 end

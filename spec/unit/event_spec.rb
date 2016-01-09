@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe 'adding an event' do
   let(:event) do
-    AASM::Core::Event.new(:close_order, {:success => :success_callback}) do
+    AASM::Core::Event.new(:close_order, success: :success_callback) do
       before :before_callback
       after :after_callback
-      transitions :to => :closed, :from => [:open, :received]
+      transitions to: :closed, from: [:open, :received]
     end
   end
 
@@ -37,7 +37,7 @@ end
 describe 'transition inspection' do
   let(:event) do
     AASM::Core::Event.new(:run) do
-      transitions :to => :running, :from => :sleeping
+      transitions to: :running, from: :sleeping
     end
   end
 
@@ -61,7 +61,7 @@ end
 describe 'transition inspection without from' do
   let(:event) do
     AASM::Core::Event.new(:run) do
-      transitions :to => :running
+      transitions to: :running
     end
   end
 
@@ -72,12 +72,11 @@ describe 'transition inspection without from' do
     expect(event.transitions_from_state(:cleaning).map(&:to)).to eq([:running])
     expect(event.transitions_from_state?(:cleaning)).to be_truthy
   end
-
 end
 
 describe 'firing an event' do
   it 'should return nil if the transitions are empty' do
-    obj = double('object', :aasm => double('aasm', :current_state => 'open'))
+    obj = double('object', aasm: double('aasm', current_state: 'open'))
 
     event = AASM::Core::Event.new(:event)
     expect(event.fire(obj)).to be_nil
@@ -85,37 +84,36 @@ describe 'firing an event' do
 
   it 'should return the state of the first matching transition it finds' do
     event = AASM::Core::Event.new(:event) do
-      transitions :to => :closed, :from => [:open, :received]
+      transitions to: :closed, from: [:open, :received]
     end
 
-    obj = double('object', :aasm => double('aasm', :current_state => :open))
+    obj = double('object', aasm: double('aasm', current_state: :open))
 
     expect(event.fire(obj)).to eq(:closed)
   end
 
   it 'should call the guard with the params passed in' do
     event = AASM::Core::Event.new(:event) do
-      transitions :to => :closed, :from => [:open, :received], :guard => :guard_fn
+      transitions to: :closed, from: [:open, :received], guard: :guard_fn
     end
 
-    obj = double('object', :aasm => double('aasm', :current_state => :open))
+    obj = double('object', aasm: double('aasm', current_state: :open))
     expect(obj).to receive(:guard_fn).with('arg1', 'arg2').and_return(true)
 
     expect(event.fire(obj, {}, nil, 'arg1', 'arg2')).to eq(:closed)
   end
-
 end
 
 describe 'should fire callbacks' do
   describe 'success' do
     it "if it's a symbol" do
-      ThisNameBetterNotBeInUse.instance_eval {
+      ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_symbol, :success => :symbol_success_callback do
-            transitions :to => :symbol, :from => [:initial]
+          event :with_symbol, success: :symbol_success_callback do
+            transitions to: :symbol, from: [:initial]
           end
         end
-      }
+      end
 
       model = ThisNameBetterNotBeInUse.new
       expect(model).to receive(:symbol_success_callback)
@@ -123,13 +121,13 @@ describe 'should fire callbacks' do
     end
 
     it "if it's a string" do
-      ThisNameBetterNotBeInUse.instance_eval {
+      ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_string, :success => 'string_success_callback' do
-            transitions :to => :string, :from => [:initial]
+          event :with_string, success: 'string_success_callback' do
+            transitions to: :string, from: [:initial]
           end
         end
-      }
+      end
 
       model = ThisNameBetterNotBeInUse.new
       expect(model).to receive(:string_success_callback)
@@ -137,13 +135,13 @@ describe 'should fire callbacks' do
     end
 
     it "if passed an array of strings and/or symbols" do
-      ThisNameBetterNotBeInUse.instance_eval {
+      ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_array, :success => [:success_callback1, 'success_callback2'] do
-            transitions :to => :array, :from => [:initial]
+          event :with_array, success: [:success_callback1, 'success_callback2'] do
+            transitions to: :array, from: [:initial]
           end
         end
-      }
+      end
 
       model = ThisNameBetterNotBeInUse.new
       expect(model).to receive(:success_callback1)
@@ -152,13 +150,13 @@ describe 'should fire callbacks' do
     end
 
     it "if passed an array of strings and/or symbols and/or procs" do
-      ThisNameBetterNotBeInUse.instance_eval {
+      ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_array_including_procs, :success => [:success_callback1, 'success_callback2', lambda { proc_success_callback }] do
-            transitions :to => :array, :from => [:initial]
+          event :with_array_including_procs, success: [:success_callback1, 'success_callback2', -> { proc_success_callback }] do
+            transitions to: :array, from: [:initial]
           end
         end
-      }
+      end
 
       model = ThisNameBetterNotBeInUse.new
       expect(model).to receive(:success_callback1)
@@ -168,13 +166,13 @@ describe 'should fire callbacks' do
     end
 
     it "if it's a proc" do
-      ThisNameBetterNotBeInUse.instance_eval {
+      ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_proc, :success => lambda { proc_success_callback } do
-            transitions :to => :proc, :from => [:initial]
+          event :with_proc, success: -> { proc_success_callback } do
+            transitions to: :proc, from: [:initial]
           end
         end
-      }
+      end
 
       model = ThisNameBetterNotBeInUse.new
       expect(model).to receive(:proc_success_callback)
@@ -186,14 +184,14 @@ describe 'should fire callbacks' do
     it "if they set different ways" do
       ThisNameBetterNotBeInUse.instance_eval do
         aasm do
-          event :with_afters, :after => :do_one_thing_after do
+          event :with_afters, after: :do_one_thing_after do
             after do
               do_another_thing_after_too
             end
             after do
               do_third_thing_at_last
             end
-            transitions :to => :proc, :from => [:initial]
+            transitions to: :proc, from: [:initial]
           end
         end
       end
@@ -214,7 +212,7 @@ describe 'should fire callbacks' do
             before do
               do_something_before
             end
-            transitions :to => :proc, :from => [:initial]
+            transitions to: :proc, from: [:initial]
           end
         end
       end
@@ -228,11 +226,11 @@ describe 'should fire callbacks' do
   it 'in right order' do
     ThisNameBetterNotBeInUse.instance_eval do
       aasm do
-        event :in_right_order, :after => :do_something_after do
+        event :in_right_order, after: :do_something_after do
           before do
             do_something_before
           end
-          transitions :to => :proc, :from => [:initial]
+          transitions to: :proc, from: [:initial]
         end
       end
     end
@@ -245,7 +243,7 @@ describe 'should fire callbacks' do
 end
 
 describe 'current event' do
-  let(:pe) {ParametrisedEvent.new}
+  let(:pe) { ParametrisedEvent.new }
 
   it 'if no event has been triggered' do
     expect(pe.aasm.current_event).to be_nil
@@ -263,7 +261,7 @@ describe 'current event' do
 end
 
 describe 'parametrised events' do
-  let(:pe) {ParametrisedEvent.new}
+  let(:pe) { ParametrisedEvent.new }
 
   it 'should transition to specified next state (sleeping to showering)' do
     pe.wakeup!(:showering)

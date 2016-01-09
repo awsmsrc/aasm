@@ -2,18 +2,17 @@ require 'spec_helper'
 Dir[File.dirname(__FILE__) + "/../models/callbacks/*.rb"].sort.each { |f| require File.expand_path(f) }
 
 describe 'callbacks for the new DSL' do
-
   it "be called in order" do
     show_debug_log = false
 
-    callback = Callbacks::Basic.new(:log => show_debug_log)
+    callback = Callbacks::Basic.new(log: show_debug_log)
     callback.aasm.current_state
 
     unless show_debug_log
       expect(callback).to receive(:before_event).once.ordered
       expect(callback).to receive(:event_guard).once.ordered.and_return(true)
       expect(callback).to receive(:transition_guard).once.ordered.and_return(true)
-      expect(callback).to receive(:before_exit_open).once.ordered                   # these should be before the state changes
+      expect(callback).to receive(:before_exit_open).once.ordered # these should be before the state changes
       expect(callback).to receive(:exit_open).once.ordered
       # expect(callback).to receive(:event_guard).once.ordered.and_return(true)
       # expect(callback).to receive(:transition_guard).once.ordered.and_return(true)
@@ -31,7 +30,7 @@ describe 'callbacks for the new DSL' do
   end
 
   it "does not run any state callback if the event guard fails" do
-    callback = Callbacks::Basic.new(:log => false)
+    callback = Callbacks::Basic.new(log: false)
     callback.aasm.current_state
 
     expect(callback).to receive(:before_event).once.ordered
@@ -55,7 +54,7 @@ describe 'callbacks for the new DSL' do
   it "it handles private callback methods as well" do
     show_debug_log = false
 
-    callback = Callbacks::PrivateMethod.new(:log => show_debug_log)
+    callback = Callbacks::PrivateMethod.new(log: show_debug_log)
     callback.aasm.current_state
 
     # puts "------- close!"
@@ -67,7 +66,7 @@ describe 'callbacks for the new DSL' do
   context "if the transition guard fails" do
     it "does not run any state callback if guard is defined inline" do
       show_debug_log = false
-      callback = Callbacks::Basic.new(:log => show_debug_log, :fail_transition_guard => true)
+      callback = Callbacks::Basic.new(log: show_debug_log, fail_transition_guard: true)
       callback.aasm.current_state
 
       unless show_debug_log
@@ -92,7 +91,7 @@ describe 'callbacks for the new DSL' do
 
     it "does not run transition_guard twice for multiple permitted transitions" do
       show_debug_log = false
-      callback = Callbacks::MultipleTransitionsTransitionGuard.new(:log => show_debug_log, :fail_transition_guard => true)
+      callback = Callbacks::MultipleTransitionsTransitionGuard.new(log: show_debug_log, fail_transition_guard: true)
       callback.aasm.current_state
 
       unless show_debug_log
@@ -102,7 +101,7 @@ describe 'callbacks for the new DSL' do
         expect(callback).to receive(:event_guard).once.ordered.and_return(true)
         expect(callback).to receive(:before_exit_open).once.ordered
         expect(callback).to receive(:exit_open).once.ordered
-        expect(callback).to receive(:aasm_write_state).once.ordered.and_return(true)  # this is when the state changes
+        expect(callback).to receive(:aasm_write_state).once.ordered.and_return(true) # this is when the state changes
         expect(callback).to receive(:after_exit_open).once.ordered
         expect(callback).to receive(:after).once.ordered
 
@@ -117,7 +116,7 @@ describe 'callbacks for the new DSL' do
     end
 
     it "does not run any state callback if guard is defined with block" do
-      callback = Callbacks::GuardWithinBlock.new #(:log => true, :fail_transition_guard => true)
+      callback = Callbacks::GuardWithinBlock.new # (:log => true, :fail_transition_guard => true)
       callback.aasm.current_state
 
       expect(callback).to receive(:before).once.ordered
@@ -140,7 +139,7 @@ describe 'callbacks for the new DSL' do
   end
 
   it "should properly pass arguments" do
-    cb = Callbacks::WithArgs.new(:log => false)
+    cb = Callbacks::WithArgs.new(log: false)
     cb.aasm.current_state
 
     cb.reset_data
@@ -191,8 +190,8 @@ describe 'event callbacks' do
         attr_accessor :data
 
         aasm do
-          event :safe_close, :success => :success_callback, :error => :error_callback do
-            transitions :to => :closed, :from => [:open]
+          event :safe_close, success: :success_callback, error: :error_callback do
+            transitions to: :closed, from: [:open]
           end
         end
       end
@@ -213,7 +212,7 @@ describe 'event callbacks' do
       end
 
       it "should run error_callback without parameters if callback does not support any" do
-        def @foo.error_callback(e)
+        def @foo.error_callback(_e)
           @data = []
         end
 
@@ -224,32 +223,32 @@ describe 'event callbacks' do
       end
 
       it "should run error_callback with parameters if callback supports them" do
-        def @foo.error_callback(e, arg1, arg2)
+        def @foo.error_callback(_e, arg1, arg2)
           @data = [arg1, arg2]
         end
 
         allow(@foo).to receive(:before_enter).and_raise(e = StandardError.new)
 
         @foo.safe_close!('arg1', 'arg2')
-        expect(@foo.data).to eql ['arg1', 'arg2']
+        expect(@foo.data).to eql %w(arg1 arg2)
       end
     end
 
     it "should raise NoMethodError if exception is raised and error_callback is declared but not defined" do
       allow(@foo).to receive(:before_enter).and_raise(StandardError)
-      expect{@foo.safe_close!}.to raise_error(NoMethodError)
+      expect { @foo.safe_close! }.to raise_error(NoMethodError)
     end
 
     it "should propagate an error if no error callback is declared" do
-        allow(@foo).to receive(:before_enter).and_raise("Cannot enter safe")
-        expect{@foo.close!}.to raise_error(StandardError, "Cannot enter safe")
+      allow(@foo).to receive(:before_enter).and_raise("Cannot enter safe")
+      expect { @foo.close! }.to raise_error(StandardError, "Cannot enter safe")
     end
   end
 
   describe "with aasm_event_fired defined" do
     before do
       @foo = Foo.new
-      def @foo.aasm_event_fired(event, from, to); end
+      def @foo.aasm_event_fired(_event, _from, _to); end
     end
 
     it 'should call it for successful bang fire' do
@@ -272,17 +271,17 @@ describe 'event callbacks' do
   describe "with aasm_event_failed defined" do
     before do
       @foo = Foo.new
-      def @foo.aasm_event_failed(event, from); end
+      def @foo.aasm_event_failed(_event, _from); end
     end
 
     it 'should call it when transition failed for bang fire' do
       expect(@foo).to receive(:aasm_event_failed).with(:null, :open)
-      expect {@foo.null!}.to raise_error(AASM::InvalidTransition)
+      expect { @foo.null! }.to raise_error(AASM::InvalidTransition)
     end
 
     it 'should call it when transition failed for non-bang fire' do
       expect(@foo).to receive(:aasm_event_failed).with(:null, :open)
-      expect {@foo.null}.to raise_error(AASM::InvalidTransition)
+      expect { @foo.null }.to raise_error(AASM::InvalidTransition)
     end
 
     it 'should not call it if persist fails for bang fire' do
@@ -291,5 +290,4 @@ describe 'event callbacks' do
       @foo.close!
     end
   end
-
 end

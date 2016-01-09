@@ -5,14 +5,14 @@ class AuthMachine
 
   aasm do
     state :passive
-    state :pending, :initial => true, :before_enter => :make_activation_code
-    state :active,  :before_enter => :do_activate
+    state :pending, initial: true, before_enter: :make_activation_code
+    state :active,  before_enter: :do_activate
     state :suspended
-    state :deleted, :before_enter => :do_delete#, :exit => :do_undelete
+    state :deleted, before_enter: :do_delete # , :exit => :do_undelete
     state :waiting
 
     event :register do
-      transitions :from => :passive, :to => :pending do
+      transitions from: :passive, to: :pending do
         guard do
           can_register?
         end
@@ -20,30 +20,30 @@ class AuthMachine
     end
 
     event :activate do
-      transitions :from => :pending, :to => :active
+      transitions from: :pending, to: :active
     end
 
     event :suspend do
-      transitions :from => [:passive, :pending, :active], :to => :suspended
+      transitions from: [:passive, :pending, :active], to: :suspended
     end
 
     event :delete do
-      transitions :from => [:passive, :pending, :active, :suspended], :to => :deleted
+      transitions from: [:passive, :pending, :active, :suspended], to: :deleted
     end
 
     # a dummy event that can never happen
     event :unpassify do
-      transitions :from => :passive, :to => :active, :guard => Proc.new {|u| false }
+      transitions from: :passive, to: :active, guard: proc { |_u| false }
     end
 
     event :unsuspend do
-      transitions :from => :suspended, :to => :active,  :guard => Proc.new { has_activated? }
-      transitions :from => :suspended, :to => :pending, :guard => :has_activation_code?
-      transitions :from => :suspended, :to => :passive
+      transitions from: :suspended, to: :active,  guard: proc { has_activated? }
+      transitions from: :suspended, to: :pending, guard: :has_activation_code?
+      transitions from: :suspended, to: :passive
     end
 
     event :wait do
-      transitions :from => :suspended, :to => :waiting, :guard => :if_polite?
+      transitions from: :suspended, to: :waiting, guard: :if_polite?
     end
   end
 

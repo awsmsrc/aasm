@@ -12,7 +12,7 @@ class LocalizerTestModel < ActiveRecord::Base
   attr_accessor :aasm_state
 
   aasm do
-    state :opened, :initial => true
+    state :opened, initial: true
     state :closed
     event :close
     event :open
@@ -31,13 +31,13 @@ describe 'localized state names' do
   end
 
   it 'should localize' do
-    state = LocalizerTestModel.aasm.states.detect {|s| s == :opened}
+    state = LocalizerTestModel.aasm.states.detect { |s| s == :opened }
     expect(state.localized_name).to eq("It's open now!")
     expect(state.human_name).to eq("It's open now!")
   end
 
   it 'should use fallback' do
-    state = LocalizerTestModel.aasm.states.detect {|s| s == :closed}
+    state = LocalizerTestModel.aasm.states.detect { |s| s == :closed }
     expect(state.localized_name).to eq('Closed')
     expect(state.human_name).to eq('Closed')
   end
@@ -55,7 +55,7 @@ describe AASM::Localizer, "new style" do
   end
 
   let (:foo_opened) { LocalizerTestModel.new }
-  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed  } }
+  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed } }
 
   context 'aasm.human_state' do
     it 'should return translated state value' do
@@ -90,7 +90,7 @@ describe AASM::Localizer, "deprecated style" do
   end
 
   let (:foo_opened) { LocalizerTestModel.new }
-  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed  } }
+  let (:foo_closed) { LocalizerTestModel.new.tap { |x| x.aasm_state = :closed } }
 
   context 'aasm.human_state' do
     it 'should return translated state value' do

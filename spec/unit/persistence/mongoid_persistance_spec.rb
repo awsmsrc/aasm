@@ -22,7 +22,6 @@ describe 'mongoid' do
     end
 
     describe "named scopes with the old DSL" do
-
       context "Does not already respond_to? the scope name" do
         it "should add a scope" do
           expect(SimpleMongoid).to respond_to(:unknown_scope)
@@ -36,11 +35,9 @@ describe 'mongoid' do
           expect(SimpleMongoid.new.class).to eq(SimpleMongoid)
         end
       end
-
     end
 
     describe "named scopes with the new DSL" do
-
       context "Does not already respond_to? the scope name" do
         it "should add a scope" do
           expect(SimpleNewDslMongoid).to respond_to(:unknown_scope)
@@ -58,12 +55,10 @@ describe 'mongoid' do
       it "does not create scopes if requested" do
         expect(NoScopeMongoid).not_to respond_to(:ignored_scope)
       end
-
     end
 
     describe "#find_in_state" do
-
-      let!(:model)    { SimpleNewDslMongoid.create!(:status => :unknown_scope) }
+      let!(:model)    { SimpleNewDslMongoid.create!(status: :unknown_scope) }
       let!(:model_id) { model._id }
 
       it "should respond to method" do
@@ -76,19 +71,17 @@ describe 'mongoid' do
       end
 
       it "should raise DocumentNotFound error when given incorrect scope" do
-        expect {SimpleNewDslMongoid.find_in_state(model_id, 'new')}.to raise_error Mongoid::Errors::DocumentNotFound
+        expect { SimpleNewDslMongoid.find_in_state(model_id, 'new') }.to raise_error Mongoid::Errors::DocumentNotFound
       end
 
       it "should raise DocumentNotFound error when given incorrect model id" do
-        expect {SimpleNewDslMongoid.find_in_state('bad_id', 'unknown_scope')}.to raise_error Mongoid::Errors::DocumentNotFound
+        expect { SimpleNewDslMongoid.find_in_state('bad_id', 'unknown_scope') }.to raise_error Mongoid::Errors::DocumentNotFound
       end
-
     end
 
     describe "#count_in_state" do
-
       before do
-        3.times { SimpleNewDslMongoid.create!(:status => :unknown_scope) }
+        3.times { SimpleNewDslMongoid.create!(status: :unknown_scope) }
       end
 
       it "should respond to method" do
@@ -104,14 +97,12 @@ describe 'mongoid' do
         expect(SimpleNewDslMongoid.count_in_state('new').class).to eq(Fixnum)
         expect(SimpleNewDslMongoid.count_in_state('new')).to eq(0)
       end
-
     end
 
     describe "#with_state_scope" do
-
       before do
-        3.times { SimpleNewDslMongoid.create!(:status => :unknown_scope) }
-        2.times { SimpleNewDslMongoid.create!(:status => :new) }
+        3.times { SimpleNewDslMongoid.create!(status: :unknown_scope) }
+        2.times { SimpleNewDslMongoid.create!(status: :new) }
       end
 
       it "should respond to method" do
@@ -126,12 +117,10 @@ describe 'mongoid' do
           SimpleNewDslMongoid.count
         end).to eq(2)
       end
-
     end
 
-
     describe "instance methods" do
-      let(:simple) {SimpleNewDslMongoid.new}
+      let(:simple) { SimpleNewDslMongoid.new }
 
       it "should call aasm_ensure_initial_state on validation before create" do
         expect(simple).to receive(:aasm_ensure_initial_state).and_return(true)
@@ -140,7 +129,7 @@ describe 'mongoid' do
 
       it "should call aasm_ensure_initial_state before create, even if skipping validations" do
         expect(simple).to receive(:aasm_ensure_initial_state).and_return(true)
-        simple.save(:validate => false)
+        simple.save(validate: false)
       end
     end
 

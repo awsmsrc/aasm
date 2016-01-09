@@ -1,21 +1,20 @@
 require 'active_record'
 
 class Validator < ActiveRecord::Base
-
   include AASM
-  aasm :column => :status do
-    state :sleeping, :initial => true
+  aasm column: :status do
+    state :sleeping, initial: true
     state :running
-    state :failed, :after_enter => :fail
+    state :failed, after_enter: :fail
 
-    event :run, :after_commit => :change_name! do
-      transitions :to => :running, :from => :sleeping
+    event :run, after_commit: :change_name! do
+      transitions to: :running, from: :sleeping
     end
     event :sleep do
-      transitions :to => :sleeping, :from => :running
+      transitions to: :sleeping, from: :running
     end
     event :fail do
-      transitions :to => :failed, :from => [:sleeping, :running]
+      transitions to: :failed, from: [:sleeping, :running]
     end
   end
 
@@ -27,6 +26,6 @@ class Validator < ActiveRecord::Base
   end
 
   def fail
-    raise StandardError.new('failed on purpose')
+    fail StandardError.new('failed on purpose')
   end
 end

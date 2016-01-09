@@ -24,13 +24,13 @@ describe 'inspection for common cases' do
       expect(states).to include(:closed)
       expect(states).to include(:final)
 
-      states = foo.aasm.states(:permitted => true)
+      states = foo.aasm.states(permitted: true)
       expect(states).to include(:closed)
       expect(states).not_to include(:open)
       expect(states).not_to include(:final)
 
       foo.close
-      expect(foo.aasm.states(:permitted => true)).to be_empty
+      expect(foo.aasm.states(permitted: true)).to be_empty
     end
 
     it "delivers all states for subclasses" do
@@ -39,12 +39,12 @@ describe 'inspection for common cases' do
       expect(states).to include(:closed)
       expect(states).to include(:foo)
 
-      states = two.aasm.states(:permitted => true)
+      states = two.aasm.states(permitted: true)
       expect(states).to include(:closed)
       expect(states).not_to include(:open)
 
       two.close
-      expect(two.aasm.states(:permitted => true)).to be_empty
+      expect(two.aasm.states(permitted: true)).to be_empty
     end
 
     it "delivers all events" do
@@ -79,7 +79,7 @@ end
 describe 'aasm.states_for_select' do
   it "should return a select friendly array of states" do
     expect(Foo.aasm).to respond_to(:states_for_select)
-    expect(Foo.aasm.states_for_select).to eq([['Open', 'open'], ['Closed', 'closed'], ['Final', 'final']])
+    expect(Foo.aasm.states_for_select).to eq([%w(Open open), %w(Closed closed), %w(Final final)])
   end
 end
 
@@ -87,20 +87,20 @@ describe 'aasm.from_states_for_state' do
   it "should return all from states for a state" do
     expect(AuthMachine.aasm).to respond_to(:from_states_for_state)
     froms = AuthMachine.aasm.from_states_for_state(:active)
-    [:pending, :passive, :suspended].each {|from| expect(froms).to include(from)}
+    [:pending, :passive, :suspended].each { |from| expect(froms).to include(from) }
   end
 
   it "should return from states for a state for a particular transition only" do
-    froms = AuthMachine.aasm.from_states_for_state(:active, :transition => :unsuspend)
-    [:suspended].each {|from| expect(froms).to include(from)}
+    froms = AuthMachine.aasm.from_states_for_state(:active, transition: :unsuspend)
+    [:suspended].each { |from| expect(froms).to include(from) }
   end
 end
 
 describe 'permitted events' do
-  let(:foo) {Foo.new}
+  let(:foo) { Foo.new }
 
   it 'work' do
-    expect(foo.aasm.events(:permitted => true)).to include(:close)
-    expect(foo.aasm.events(:permitted => true)).not_to include(:null)
+    expect(foo.aasm.events(permitted: true)).to include(:close)
+    expect(foo.aasm.events(permitted: true)).not_to include(:null)
   end
 end

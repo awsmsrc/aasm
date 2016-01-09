@@ -19,20 +19,20 @@ describe 'sequel' do
         set_dataset(:models)
         attr_accessor :default
         include AASM
-        aasm :column => :status
+        aasm column: :status
         aasm do
-          state :alpha, :initial => true
+          state :alpha, initial: true
           state :beta
           state :gamma
           event :release do
-            transitions :from => [:alpha, :beta, :gamma], :to => :beta
+            transitions from: [:alpha, :beta, :gamma], to: :beta
           end
         end
       end
     end
 
     describe "instance methods" do
-      let(:model) {@model.new}
+      let(:model) { @model.new }
 
       it "should respond to aasm persistence methods" do
         expect(model).to respond_to(:aasm_read_state)
@@ -68,7 +68,7 @@ describe 'sequel' do
 
       it "should call aasm_ensure_initial_state before create, even if skipping validations" do
         expect(model).to receive(:aasm_ensure_initial_state).and_return(true)
-        model.save(:validate => false)
+        model.save(validate: false)
       end
     end
 
@@ -90,11 +90,11 @@ describe 'sequel' do
     describe 'initial states' do
       it 'should support conditions' do
         @model.aasm do
-          initial_state lambda{ |m| m.default }
+          initial_state ->(m) { m.default }
         end
 
-        expect(@model.new(:default => :beta).aasm.current_state).to eq(:beta)
-        expect(@model.new(:default => :gamma).aasm.current_state).to eq(:gamma)
+        expect(@model.new(default: :beta).aasm.current_state).to eq(:beta)
+        expect(@model.new(default: :gamma).aasm.current_state).to eq(:gamma)
       end
     end
 

@@ -43,7 +43,6 @@ module AASM
       end
 
       module ClassMethods
-
         def find_in_state(number, state, *args)
           with_state_scope state do
             find(number, *args)
@@ -61,11 +60,9 @@ module AASM
             yield if block_given?
           end
         end
-
       end
 
       module InstanceMethods
-
         # Writes <tt>state</tt> to the state column and persists it to the database
         # using update_attribute (which bypasses validation)
         #
@@ -80,7 +77,7 @@ module AASM
           old_value = read_attribute(self.class.aasm.attribute_name)
           write_attribute(self.class.aasm.attribute_name, state.to_s)
 
-          unless self.save(:validate => false)
+          unless save(validate: false)
             write_attribute(self.class.aasm.attribute_name, old_value)
             return false
           end
@@ -104,7 +101,7 @@ module AASM
           write_attribute(self.class.aasm.attribute_name, state.to_s)
         end
 
-      private
+        private
 
         # Ensures that if the aasm_state column is nil and the record is new
         # that the initial state gets populated before validation on create
@@ -127,9 +124,9 @@ module AASM
       end # InstanceMethods
 
       module NamedScopeMethods
-        def aasm_state_with_named_scope name, options = {}
+        def aasm_state_with_named_scope(name, options = {})
           aasm_state_without_named_scope name, options
-          self.named_scope name, :conditions => { "#{table_name}.#{self.aasm.attribute_name}" => name.to_s} unless self.respond_to?(name)
+          named_scope name, conditions: { "#{table_name}.#{aasm.attribute_name}" => name.to_s } unless self.respond_to?(name)
         end
       end
     end

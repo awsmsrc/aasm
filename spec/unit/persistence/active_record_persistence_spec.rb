@@ -15,7 +15,7 @@ shared_examples_for "aasm model" do
 end
 
 describe "instance methods" do
-  let(:gate) {Gate.new}
+  let(:gate) { Gate.new }
 
   it "should respond to aasm persistence methods" do
     expect(gate).to respond_to(:aasm_read_state)
@@ -24,7 +24,7 @@ describe "instance methods" do
   end
 
   describe "aasm_column_looks_like_enum" do
-    subject { lambda{ gate.send(:aasm_column_looks_like_enum) } }
+    subject { -> { gate.send(:aasm_column_looks_like_enum) } }
 
     let(:column_name) { "value" }
     let(:columns_hash) { Hash[column_name, column] }
@@ -52,7 +52,7 @@ describe "instance methods" do
   end
 
   describe "aasm_guess_enum_method" do
-    subject { lambda{ gate.send(:aasm_guess_enum_method) } }
+    subject { -> { gate.send(:aasm_guess_enum_method) } }
 
     before :each do
       allow(gate.class.aasm).to receive(:attribute_name).and_return(:value)
@@ -254,19 +254,18 @@ describe "instance methods" do
       Gate.select(:id).where(id: gate.id).first
     end
   end
-
 end
 
 if ActiveRecord::VERSION::MAJOR < 4 && ActiveRecord::VERSION::MINOR < 2 # won't work with Rails >= 4.2
-describe "direct state column access" do
-  it "accepts false states" do
-    f = FalseState.create!
-    expect(f.aasm_state).to eql false
-    expect {
-      f.aasm.events.map(&:name)
-    }.to_not raise_error
+  describe "direct state column access" do
+    it "accepts false states" do
+      f = FalseState.create!
+      expect(f.aasm_state).to eql false
+      expect do
+        f.aasm.events.map(&:name)
+      end.to_not raise_error
+    end
   end
-end
 end
 
 describe 'subclasses' do
@@ -302,7 +301,6 @@ describe "named scopes with the new DSL" do
   it "does not create scopes if requested" do
     expect(NoScope).not_to respond_to(:pending)
   end
-
 end # scopes
 
 describe "direct assignment" do
@@ -318,30 +316,28 @@ describe "direct assignment" do
     obj = NoDirectAssignment.create
     expect(obj.aasm_state.to_sym).to eql :pending
 
-    expect {obj.aasm_state = :running}.to raise_error(AASM::NoDirectAssignmentError)
+    expect { obj.aasm_state = :running }.to raise_error(AASM::NoDirectAssignmentError)
     expect(obj.aasm_state.to_sym).to eql :pending
   end
 end # direct assignment
 
 describe 'initial states' do
-
   it 'should support conditions' do
-    expect(Thief.new(:skilled => true).aasm.current_state).to eq(:rich)
-    expect(Thief.new(:skilled => false).aasm.current_state).to eq(:jailed)
+    expect(Thief.new(skilled: true).aasm.current_state).to eq(:rich)
+    expect(Thief.new(skilled: false).aasm.current_state).to eq(:jailed)
   end
 end
 
 describe 'transitions with persistence' do
-
   it "should work for valid models" do
-    valid_object = Validator.create(:name => 'name')
+    valid_object = Validator.create(name: 'name')
     expect(valid_object).to be_sleeping
     valid_object.status = :running
     expect(valid_object).to be_running
   end
 
   it 'should not store states for invalid models' do
-    validator = Validator.create(:name => 'name')
+    validator = Validator.create(name: 'name')
     expect(validator).to be_valid
     expect(validator).to be_sleeping
 
@@ -365,7 +361,7 @@ describe 'transitions with persistence' do
   end
 
   it 'should store states for invalid models if configured' do
-    persistor = InvalidPersistor.create(:name => 'name')
+    persistor = InvalidPersistor.create(name: 'name')
     expect(persistor).to be_valid
     expect(persistor).to be_sleeping
 
@@ -386,14 +382,14 @@ describe 'transitions with persistence' do
   end
 
   describe 'transactions' do
-    let(:worker) { Worker.create!(:name => 'worker', :status => 'sleeping') }
-    let(:transactor) { Transactor.create!(:name => 'transactor', :worker => worker) }
+    let(:worker) { Worker.create!(name: 'worker', status: 'sleeping') }
+    let(:transactor) { Transactor.create!(name: 'transactor', worker: worker) }
 
     it 'should rollback all changes' do
       expect(transactor).to be_sleeping
       expect(worker.status).to eq('sleeping')
 
-      expect {transactor.run!}.to raise_error(StandardError, 'failed on purpose')
+      expect { transactor.run! }.to raise_error(StandardError, 'failed on purpose')
       expect(transactor).to be_running
       expect(worker.reload.status).to eq('sleeping')
     end
@@ -429,7 +425,7 @@ describe 'transitions with persistence' do
 
     describe "after_commit callback" do
       it "should fire :after_commit if transaction was successful" do
-        validator = Validator.create(:name => 'name')
+        validator = Validator.create(name: 'name')
         expect(validator).to be_sleeping
         validator.run!
         expect(validator).to be_running
@@ -437,19 +433,18 @@ describe 'transitions with persistence' do
       end
 
       it "should not fire :after_commit if transaction failed" do
-        validator = Validator.create(:name => 'name')
+        validator = Validator.create(name: 'name')
         expect { validator.fail! }.to raise_error(StandardError, 'failed on purpose')
         expect(validator.name).to eq("name")
       end
 
       it "should not fire if not saving" do
-        validator = Validator.create(:name => 'name')
+        validator = Validator.create(name: 'name')
         expect(validator).to be_sleeping
         validator.run
         expect(validator).to be_running
         expect(validator.name).to eq("name")
       end
-
     end
 
     context "when not persisting" do
@@ -458,38 +453,36 @@ describe 'transitions with persistence' do
         expect(worker.status).to eq('sleeping')
 
         # Notice here we're calling "run" and not "run!" with a bang.
-        expect {transactor.run}.to raise_error(StandardError, 'failed on purpose')
+        expect { transactor.run }.to raise_error(StandardError, 'failed on purpose')
         expect(transactor).to be_running
         expect(worker.reload.status).to eq('running')
       end
 
       it 'should not create a database transaction' do
         expect(transactor.class).not_to receive(:transaction)
-        expect {transactor.run}.to raise_error(StandardError, 'failed on purpose')
+        expect { transactor.run }.to raise_error(StandardError, 'failed on purpose')
       end
     end
   end
 end
 
 describe "invalid states with persistence" do
-
   it "should not store states" do
-    validator = Validator.create(:name => 'name')
+    validator = Validator.create(name: 'name')
     validator.status = 'invalid_state'
     expect(validator.save).to be_falsey
-    expect {validator.save!}.to raise_error(ActiveRecord::RecordInvalid)
+    expect { validator.save! }.to raise_error(ActiveRecord::RecordInvalid)
 
     validator.reload
     expect(validator).to be_sleeping
   end
 
   it "should store invalid states if configured" do
-    persistor = InvalidPersistor.create(:name => 'name')
+    persistor = InvalidPersistor.create(name: 'name')
     persistor.status = 'invalid_state'
     expect(persistor.save).to be_truthy
 
     persistor.reload
     expect(persistor.status).to eq('invalid_state')
   end
-
 end

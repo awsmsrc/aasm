@@ -1,16 +1,15 @@
 module Callbacks
   class WithStateArg
-
     include AASM
 
     aasm do
-      state :open, :inital => true
+      state :open, inital: true
       state :closed
       state :out_to_lunch
 
-      event :close, :before => :before_method, :after => :after_method do
-        transitions :to => :closed, :from => [:open], :after => :transition_method
-        transitions :to => :out_to_lunch, :from => [:open], :after => :transition_method2
+      event :close, before: :before_method, after: :after_method do
+        transitions to: :closed, from: [:open], after: :transition_method
+        transitions to: :out_to_lunch, from: [:open], after: :transition_method2
       end
     end
 
@@ -21,6 +20,5 @@ module Callbacks
     def transition_method(arg); end
 
     def transition_method2(arg); end
-
   end
 end

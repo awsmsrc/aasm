@@ -8,7 +8,7 @@ module AASM::Core
       @name = name
       @transitions = []
       @guards = Array(options[:guard] || options[:guards] || options[:if])
-      @unless = Array(options[:unless]) #TODO: This could use a better name
+      @unless = Array(options[:unless]) # TODO: This could use a better name
 
       # from aasm4
       @options = options # QUESTION: .dup ?
@@ -18,11 +18,11 @@ module AASM::Core
     # a neutered version of fire - it doesn't actually fire the event, it just
     # executes the transition guards to determine if a transition is even
     # an option given current conditions.
-    def may_fire?(obj, to_state=nil, *args)
-      _fire(obj, {:test_only => true}, to_state, *args) # true indicates test firing
+    def may_fire?(obj, to_state = nil, *args)
+      _fire(obj, { test_only: true }, to_state, *args) # true indicates test firing
     end
 
-    def fire(obj, options={}, to_state=nil, *args)
+    def fire(obj, options = {}, to_state = nil, *args)
       _fire(obj, options, to_state, *args) # false indicates this is not a test (fire!)
     end
 
@@ -31,7 +31,7 @@ module AASM::Core
     end
 
     def transitions_from_state(state)
-      @transitions.select { |t| t.from.nil? or t.from == state }
+      @transitions.select { |t| t.from.nil? || t.from == state }
     end
 
     def transitions_to_state?(state)
@@ -57,11 +57,11 @@ module AASM::Core
     end
 
     ## DSL interface
-    def transitions(definitions=nil, &block)
+    def transitions(definitions = nil, &block)
       if definitions # define new transitions
         # Create a separate transition for each from-state to the given state
         Array(definitions[:from]).each do |s|
-          @transitions << AASM::Core::Transition.new(attach_event_guards(definitions.merge(:from => s.to_sym)), &block)
+          @transitions << AASM::Core::Transition.new(attach_event_guards(definitions.merge(from: s.to_sym)), &block)
         end
         # Create a transition if :to is specified without :from (transitions from ANY state)
         if @transitions.empty? && definitions[:to]
@@ -71,7 +71,7 @@ module AASM::Core
       @transitions
     end
 
-  private
+    private
 
     def attach_event_guards(definitions)
       unless @guards.empty?
@@ -86,7 +86,7 @@ module AASM::Core
     end
 
     # Execute if test == false, otherwise return true/false depending on whether it would fire
-    def _fire(obj, options={}, to_state=nil, *args)
+    def _fire(obj, options = {}, to_state = nil, *args)
       result = options[:test_only] ? false : nil
       if @transitions.map(&:from).any?
         transitions = @transitions.select { |t| t.from == obj.aasm.current_state }
@@ -97,7 +97,7 @@ module AASM::Core
 
       # If to_state is not nil it either contains a potential
       # to_state or an arg
-      unless to_state == nil
+      unless to_state.nil?
         if !to_state.respond_to?(:to_sym) || !transitions.map(&:to).flatten.include?(to_state.to_sym)
           args.unshift(to_state)
           to_state = nil
@@ -105,45 +105,43 @@ module AASM::Core
       end
 
       transitions.each do |transition|
-        next if to_state and !Array(transition.to).include?(to_state)
-        if (options.key?(:may_fire) && Array(transition.to).include?(options[:may_fire])) ||
-           (!options.key?(:may_fire) && transition.allowed?(obj, *args))
-          result = to_state || Array(transition.to).first
-          if options[:test_only]
-            # result = true
-          else
-            transition.execute(obj, *args)
-          end
-
-          break
+        next if to_state && !Array(transition.to).include?(to_state)
+        next unless (options.key?(:may_fire) && Array(transition.to).include?(options[:may_fire])) ||
+                    (!options.key?(:may_fire) && transition.allowed?(obj, *args))
+        result = to_state || Array(transition.to).first
+        if options[:test_only]
+          # result = true
+        else
+          transition.execute(obj, *args)
         end
+
+        break
       end
       result
     end
 
     def invoke_callbacks(code, record, args)
       case code
-        when Symbol, String
-          unless record.respond_to?(code, true)
-            raise NoMethodError.new("NoMethodError: undefined method `#{code}' for #{record.inspect}:#{record.class}")
-          end
-          arity = record.send(:method, code.to_sym).arity
-          record.send(code, *(arity < 0 ? args : args[0...arity]))
-          true
+      when Symbol, String
+        unless record.respond_to?(code, true)
+          fail NoMethodError.new("NoMethodError: undefined method `#{code}' for #{record.inspect}:#{record.class}")
+        end
+        arity = record.send(:method, code.to_sym).arity
+        record.send(code, *(arity < 0 ? args : args[0...arity]))
+        true
 
-        when Proc
-          arity = code.arity
-          record.instance_exec(*(arity < 0 ? args : args[0...arity]), &code)
-          true
+      when Proc
+        arity = code.arity
+        record.instance_exec(*(arity < 0 ? args : args[0...arity]), &code)
+        true
 
-        when Array
-          code.each {|a| invoke_callbacks(a, record, args)}
-          true
+      when Array
+        code.each { |a| invoke_callbacks(a, record, args) }
+        true
 
-        else
-          false
+      else
+        false
       end
     end
-
   end
 end # AASM

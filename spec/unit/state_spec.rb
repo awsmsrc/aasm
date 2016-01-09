@@ -3,10 +3,10 @@ require 'spec_helper'
 describe AASM::Core::State do
   before(:each) do
     @name    = :astate
-    @options = { :crazy_custom_key => 'key' }
+    @options = { crazy_custom_key: 'key' }
   end
 
-  def new_state(options={})
+  def new_state(options = {})
     AASM::Core::State.new(@name, Conversation, @options.merge(options))
   end
 
@@ -20,7 +20,7 @@ describe AASM::Core::State do
   end
 
   it 'should set the display_name from options' do
-    expect(new_state(:display => "A State").display_name).to eq('A State')
+    expect(new_state(display: "A State").display_name).to eq('A State')
   end
 
   it 'should set the options and expose them as options' do
@@ -36,7 +36,7 @@ describe AASM::Core::State do
   end
 
   it 'should send a message to the record for an action if the action is present as a symbol' do
-    state = new_state(:entering => :foo)
+    state = new_state(entering: :foo)
 
     record = double('record')
     expect(record).to receive(:foo)
@@ -45,7 +45,7 @@ describe AASM::Core::State do
   end
 
   it 'should send a message to the record for an action if the action is present as a string' do
-    state = new_state(:entering => 'foo')
+    state = new_state(entering: 'foo')
 
     record = double('record')
     expect(record).to receive(:foo)
@@ -54,7 +54,7 @@ describe AASM::Core::State do
   end
 
   it 'should send a message to the record for each action' do
-    state = new_state(:entering => [:a, :b, "c", lambda {|r| r.foobar }])
+    state = new_state(entering: [:a, :b, "c", ->(r) { r.foobar }])
 
     record = double('record')
     expect(record).to receive(:a)
@@ -66,7 +66,7 @@ describe AASM::Core::State do
   end
 
   it "should stop calling actions if one of them raises :halt_aasm_chain" do
-    state = new_state(:entering => [:a, :b, :c])
+    state = new_state(entering: [:a, :b, :c])
 
     record = double('record')
     expect(record).to receive(:a)
@@ -77,7 +77,7 @@ describe AASM::Core::State do
   end
 
   it 'should call a proc, passing in the record for an action if the action is present' do
-    state = new_state(:entering => Proc.new {|r| r.foobar})
+    state = new_state(entering: proc { |r| r.foobar })
 
     record = double('record')
     expect(record).to receive(:foobar)

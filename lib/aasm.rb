@@ -1,6 +1,6 @@
 require 'ostruct'
 
-require 'aasm/version'
+require     'aasm/version'
 require 'aasm/errors'
 require 'aasm/configuration'
 require 'aasm/base'
